@@ -1,73 +1,149 @@
-# React + TypeScript + Vite
+# Art Institute of Chicago – Artwork Data Table
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Overview
 
-Currently, two official plugins are available:
+This project is a React + TypeScript application built using Vite.  
+It displays artwork data from the Art Institute of Chicago API using PrimeReact DataTable with:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Server-side pagination
+- Persistent row selection
+- Custom row selection panel
+- No mass data storage
+- No page prefetching
 
-## React Compiler
+API Used:
+https://api.artic.edu/api/v1/artworks?page=1
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## Tech Stack
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- React (Vite)
+- TypeScript
+- PrimeReact DataTable
+- Fetch API
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+---
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## Project Structure
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+src/
+│
+├── api/
+│ └── artworks.ts # API fetching logic
+│
+├── components/
+│ ├── ArtworkTable.tsx # Main DataTable logic
+│ └── CustomSelectionOverlay.tsx
+│
+├── hooks/
+│ └── useArtworks.ts # Server-side pagination logic
+│
+├── types/
+│ └── artwork.ts # TypeScript interfaces
+│
+├── App.tsx
+└── main.tsx
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+---
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## Features Implemented
+
+### 1. Server-Side Pagination
+
+- Data is fetched page-by-page.
+- Only one API call is made per page change.
+- No prefetching of additional pages.
+- Data is always fetched fresh from the API.
+
+Implementation:
+- `lazy` mode in PrimeReact DataTable
+- `onPage` event triggers new API call
+- Current page stored in state
+
+---
+
+### 2. Persistent Row Selection
+
+Selections persist when navigating between pages.
+
+#### Strategy Used:
+
+- Only artwork `id` values are stored.
+- No row objects are stored.
+- No data from other pages is cached.
+
+State structure:
+
+```ts
+selectedIds: Set<number>
+deselectedIds: Set<number>
+When a page loads:
+
+Current page rows are filtered
+
+If row.id exists in selectedIds and not in deselectedIds → it appears selected
+
+This ensures:
+
+No memory overload
+
+No page prefetching
+
+No mass data storage
+
+Selection remains persistent
+
+3. Custom Row Selection
+An overlay allows selecting n rows.
+
+Rules followed:
+
+Only selects rows from the current page
+
+Does NOT fetch other pages
+
+If n > rows on page → only available rows are selected
+
+No while loops
+
+No multiple API calls
+
+4. Required Fields Displayed
+The table displays:
+
+title
+
+place_of_origin
+
+artist_display
+
+inscriptions
+
+date_start
+
+date_end
+
+Important Constraints Followed
+No mass storage of API data
+
+No prefetching of additional pages
+
+No storing full row objects
+
+Always fetch from API per page
+
+Only store IDs for persistent selection
+
+How to Run Locally
+npm install
+npm run dev
+Deployment
+Deployed on:
+
+https://grow-me-organic-ruddy.vercel.app
+
+
+Author
+Rishant Singh
